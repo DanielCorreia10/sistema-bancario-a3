@@ -1,7 +1,7 @@
 
 package contabancaria;
 
-import com.mycompany.sistema.bancario.a3.Main;
+import app.Main;
 import java.util.Locale;
 import java.util.Scanner;
 import geradornumeros.GeradorNumerosFormatados;
