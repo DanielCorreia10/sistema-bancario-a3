@@ -1,0 +1,10 @@
+transacoes\Deposito.class
+transacoes\Saque.class
+transacoes\Transacao.class
+cliente\Cliente.class
+contabancaria\ContaCorrente.class
+transacoes\PagamentoBoleto.class
+com\mycompany\sistema\bancario\a3\Main.class
+geradornumeros\GeradorNumerosFormatados.class
+contabancaria\ContaPoupanca.class
+contabancaria\ContaBancaria.class
