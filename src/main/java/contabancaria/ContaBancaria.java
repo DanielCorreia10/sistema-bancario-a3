@@ -2,69 +2,61 @@
 package contabancaria;
 
 import app.Main;
-import java.util.Locale;
 import java.util.Scanner;
 import geradornumeros.GeradorNumerosFormatados;
 
-public class ContaBancaria {
-
-    private static final Scanner scanner = new Scanner(System.in);
-    private static final Locale localeBR = new Locale("pt", "BR");
-
-    public String name;
-    private String conta;
-    private String agencia;
+public abstract class ContaBancaria {
+    private final static Scanner scanner = new Scanner(System.in);
+    private String name;
+    private  String conta;
+    private  String agencia;
     private double saldo;
-    private double cheque_especial;
-    private double valorChequeEspecialUsado;
     private double deposito;
     private double saque;
     private double boleto;
 
-    public void criarConta() {
-        scanner.useLocale(localeBR);
+    // Construtor
+    public ContaBancaria(String name, String conta, String agencia, double saldo, double deposito, double saque, double boleto) {
+        this.name = name;
+        this.conta = conta;
+        this.agencia = agencia;
+        this.saldo = saldo;
+        this.deposito = deposito;
+        this.saque = saque;
+        this.boleto = boleto;
+    }
+
+    public void criarConta(){
+        double primeiroDeposito;
 
         System.out.println("Seja bem-vindo");
         System.out.println("==================");
-        System.out.println("Insira seu nome:");
+        System.out.println("Insira seu nome :");
 
         this.name = scanner.nextLine().trim();
 
-        this.conta = GeradorNumerosFormatados.gerarNumeroConta();
-        this.agencia = GeradorNumerosFormatados.gerarNumeroAgencia();
-
-        System.out.println("Sua conta foi criada com sucesso, veja seus dados abaixo:");
+        System.out.println("Sua conta foi criada com sucesso,veja seus dados abaixo:");
         System.out.println(this.name + ":");
-        System.out.println("Conta: " + this.conta);
-        System.out.println("Agência: " + this.agencia);
+        this.conta=GeradorNumerosFormatados.gerarNumeroConta();
+        this.agencia = GeradorNumerosFormatados.gerarNumeroAgencia();
         System.out.println("=========================");
 
         System.out.println("Realize seu primeiro depósito para ter acesso a sua conta");
-        System.out.println("Digite o valor do depósito:");
-
-        double primeiroDeposito = scanner.nextDouble();
-
-        if (primeiroDeposito <= 0) {
-            System.out.println("O depósito deve ser maior que zero.");
-            return;
-        }
-
-        this.saldo = primeiroDeposito;
-
-        if (primeiroDeposito <= 500) {
-            this.cheque_especial = 50;
-        } else {
-            this.cheque_especial = primeiroDeposito / 2.0;
-        }
+        System.out.println("Digite o valor do depósito");
+        
+        primeiroDeposito = scanner.nextDouble();
+        configurarConta(primeiroDeposito);
 
         scanner.nextLine();
+
         acessarConta();
     }
 
-    public void acessarConta() {
-        boolean verificador = false;
+    public abstract void configurarConta(double primeiroDeposito);
 
-        while (!verificador) {
+    public void acessarConta(){
+        boolean verificador = false;
+        do {
             System.out.println("Login");
             System.out.println("============");
 
@@ -77,158 +69,108 @@ public class ContaBancaria {
             System.out.println("Digite o número da sua agência");
             String agenciaToVerify = scanner.nextLine().trim();
 
-            if (nameToVerify.equalsIgnoreCase(this.name)
-                    && contaToVerify.equals(this.conta)
-                    && agenciaToVerify.equals(this.agencia)) {
-
+            if (nameToVerify.equalsIgnoreCase(this.name) && contaToVerify.equals(this.conta) && agenciaToVerify.equals(this.agencia)){
                 verificador = true;
-                System.out.println("Login realizado com sucesso!");
 
-            } else {
-                System.out.println("Informações inválidas, tente novamente.");
+            }else{
+                System.out.println("Informações inválidas tente novamete");
             }
-        }
+        }while(!verificador);
 
         Main.menu();
     }
 
+    // Getters
+
+    public String getName() {
+        return name;
+    }
     public String getConta() {
         return conta;
     }
-
     public String getAgencia() {
         return agencia;
     }
-
     public double getSaldo() {
         return saldo;
     }
 
-    public double getCheque_especial() {
-        return cheque_especial;
+    public double getDeposito() {
+        return deposito;
     }
 
-    public double getValorChequeEspecialUsado() {
-        return valorChequeEspecialUsado;
+    public double getSaque() {
+        return saque;
     }
 
-    public void depositando() {
-        scanner.useLocale(localeBR);
+    public double getBoleto() {
+        return boleto;
+    }
 
+    // Setters
+    public void setSaldo(double saldo) {
+        this.saldo = saldo;
+    }
+
+    public void setBoleto(double boleto) {
+        this.boleto = boleto;
+    }
+
+
+    // Depósito
+    public boolean depositando() {
         System.out.println("Informe o valor do depósito:");
         this.deposito = scanner.nextDouble();
 
         if (this.deposito <= 0) {
-            System.out.println("O depósito deve ser maior que zero.");
-            return;
+            System.out.println("Valor de depósito inválido!");
+            return false;
         }
 
-        if (this.valorChequeEspecialUsado > 0) {
-            double taxaChequeEspecial = this.valorChequeEspecialUsado * 0.20;
-            double valorParaCobrir = this.valorChequeEspecialUsado + taxaChequeEspecial;
-
-            System.out.println("Você utilizou R$"
-                    + String.format(localeBR, "%.2f", this.valorChequeEspecialUsado)
-                    + " do seu cheque especial.");
-
-            System.out.println("Será cobrada uma taxa de 20%: R$"
-                    + String.format(localeBR, "%.2f", taxaChequeEspecial));
-
-            if (this.deposito >= valorParaCobrir) {
-                this.saldo += this.deposito - valorParaCobrir;
-                this.valorChequeEspecialUsado = 0;
-
-                System.out.println("Cheque especial e taxa pagos com sucesso!");
-
-            } else {
-                double valorRestante = valorParaCobrir - this.deposito;
-
-                this.valorChequeEspecialUsado = valorRestante;
-
-                System.out.println("Depósito utilizado para abater a dívida do cheque especial.");
-                System.out.println("Valor restante da dívida: R$"
-                        + String.format(localeBR, "%.2f", valorRestante));
-            }
-
-        } else {
-            this.saldo += this.deposito;
-            System.out.println("Depósito realizado com sucesso!");
-        }
-
-        System.out.println("Saldo atual: R$"
-                + String.format(localeBR, "%.2f", this.saldo));
+        return true;
     }
 
-    public void sacando() {
-        scanner.useLocale(localeBR);
-
+    // Saque
+    public boolean sacando(){
         System.out.println("Informe o valor do saque:");
         this.saque = scanner.nextDouble();
 
         if (this.saque <= 0) {
-            System.out.println("O saque deve ser maior que zero.");
-            return;
+            System.out.println("Valor de saque inválido!");
+            return false;
         }
-
+        
         if (this.saque > this.saldo) {
-            double restanteParaSacar = this.saque - this.saldo;
-            double limiteDisponivel = this.cheque_especial - this.valorChequeEspecialUsado;
-
-            if (restanteParaSacar <= limiteDisponivel) {
-                this.saldo = 0;
-                this.valorChequeEspecialUsado += restanteParaSacar;
-
-                System.out.println("Saque realizado com sucesso.");
-                System.out.println("Valor utilizado do cheque especial: R$"
-                        + String.format(localeBR, "%.2f", this.valorChequeEspecialUsado));
-
-            } else {
-                System.out.println("Saldo + limite insuficiente, não podemos concluir a transação!");
-            }
-
+            System.out.println("Saldo insuficiente!");
+            return false;
+            
         } else {
             this.saldo -= this.saque;
             System.out.println("Saque realizado com sucesso!");
+            System.out.println("Saldo atual: R$"+ String.format("%.2f", this.saldo));
+            return true;
         }
 
-        System.out.println("Saldo atual: R$"
-                + String.format(localeBR, "%.2f", this.saldo));
     }
-
-    public void pagandoBoleto() {
-        scanner.useLocale(localeBR);
+    // Pagamento de boleto
+    public boolean pagandoBoleto(){
 
         System.out.println("Informe o valor do boleto:");
         this.boleto = scanner.nextDouble();
 
-        if (this.boleto <= 0) {
-            System.out.println("O valor do boleto deve ser maior que zero.");
-            return;
+        if(this.boleto <=0) {
+            System.out.println("Valor de boleto inválido!");
+            return false;
         }
 
-        if (this.boleto <= this.saldo) {
+        if (this.boleto<=this.saldo){
             this.saldo -= this.boleto;
             System.out.println("Boleto pago com sucesso!");
-
-        } else {
-            System.out.println("Saldo insuficiente, vamos tentar aplicar o limite do seu cheque especial");
-
-            double valorParaPagarComCheque = this.boleto - this.saldo;
-            double limiteDisponivel = this.cheque_especial - this.valorChequeEspecialUsado;
-
-            if (valorParaPagarComCheque <= limiteDisponivel) {
-                this.valorChequeEspecialUsado += valorParaPagarComCheque;
-                this.saldo = 0;
-
-                System.out.println("Transação concluída com sucesso.");
-                System.out.println("Sua conta agora está utilizando o cheque especial.");
-
-            } else {
-                System.out.println("Saldo + limite insuficiente, não podemos concluir a transação!");
-            }
+            return true;
         }
 
-        System.out.println("Saldo atual: R$"
-                + String.format(localeBR, "%.2f", this.saldo));
-    }
+        System.out.println("Saldo insuficiente!");
+        return false;
+    }   
+
 }
