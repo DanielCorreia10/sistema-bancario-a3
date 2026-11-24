@@ -4,6 +4,10 @@ public class ContaPoupanca extends ContaBancaria {
 
     private double taxaRendimento = 0.5;
 
+    public ContaPoupanca() {
+        super("", "", "", 0, 0, 0, 0);
+    }
+
     public ContaPoupanca(String name, String conta, String agencia,
             double saldo, double deposito, double saque, double boleto, double taxaRendimento) {
         super(name, conta, agencia, saldo, deposito, saque, boleto);
@@ -39,6 +43,7 @@ public class ContaPoupanca extends ContaBancaria {
         }
 
         setSaldo(getSaldo() + getDeposito());
+        System.out.println("Depósito realizado com sucesso! Novo saldo: R$" + String.format("%.2f", getSaldo()));
         return true;
     }
     

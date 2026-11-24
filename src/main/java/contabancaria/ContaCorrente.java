@@ -1,10 +1,13 @@
 package contabancaria;
 
-
 public class ContaCorrente extends ContaBancaria {
 
     private double cheque_especial;
     private double valorChequeEspecialUsado;
+
+    public ContaCorrente() {
+    super("", "", "", 0, 0, 0, 0);
+}
 
     public ContaCorrente(String name, String conta, String agencia,
             double saldo, double deposito, double saque, double boleto,

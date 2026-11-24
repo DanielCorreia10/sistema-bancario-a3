@@ -1,12 +1,11 @@
 
 package contabancaria;
 
-import app.Main;
 import java.util.Scanner;
 import geradornumeros.GeradorNumerosFormatados;
 
 public abstract class ContaBancaria {
-    private final static Scanner scanner = new Scanner(System.in);
+    final static Scanner scanner = new Scanner(System.in);
     private String name;
     private  String conta;
     private  String agencia;
@@ -14,6 +13,7 @@ public abstract class ContaBancaria {
     private double deposito;
     private double saque;
     private double boleto;
+
 
     // Construtor
     public ContaBancaria(String name, String conta, String agencia, double saldo, double deposito, double saque, double boleto) {
@@ -35,56 +35,27 @@ public abstract class ContaBancaria {
 
         this.name = scanner.nextLine().trim();
 
-        System.out.println("Sua conta foi criada com sucesso,veja seus dados abaixo:");
-        System.out.println(this.name + ":");
         this.conta=GeradorNumerosFormatados.gerarNumeroConta();
         this.agencia = GeradorNumerosFormatados.gerarNumeroAgencia();
+
+        System.out.println("Sua conta foi criada com sucesso, veja seus dados abaixo:");
+        System.out.println("Nome: " + this.name);
+        System.out.println("Conta: " + this.conta);
+        System.out.println("Agência: " + this.agencia);
         System.out.println("=========================");
 
         System.out.println("Realize seu primeiro depósito para ter acesso a sua conta");
         System.out.println("Digite o valor do depósito");
         
         primeiroDeposito = scanner.nextDouble();
-        configurarConta(primeiroDeposito);
-
         scanner.nextLine();
-
-        acessarConta();
+        configurarConta(primeiroDeposito);
     }
-
-    public abstract void configurarConta(double primeiroDeposito);
-
-    public void acessarConta(){
-        boolean verificador = false;
-        do {
-            System.out.println("Login");
-            System.out.println("============");
-
-            System.out.println("Informe seu nome");
-            String nameToVerify = scanner.nextLine().trim();
-
-            System.out.println("Digite o número da sua conta");
-            String contaToVerify = scanner.nextLine().trim();
-
-            System.out.println("Digite o número da sua agência");
-            String agenciaToVerify = scanner.nextLine().trim();
-
-            if (nameToVerify.equalsIgnoreCase(this.name) && contaToVerify.equals(this.conta) && agenciaToVerify.equals(this.agencia)){
-                verificador = true;
-
-            }else{
-                System.out.println("Informações inválidas tente novamete");
-            }
-        }while(!verificador);
-
-        Main.menu();
-    }
-
-    // Getters
 
     public String getName() {
         return name;
     }
+
     public String getConta() {
         return conta;
     }
@@ -107,7 +78,8 @@ public abstract class ContaBancaria {
         return boleto;
     }
 
-    // Setters
+    
+    
     public void setSaldo(double saldo) {
         this.saldo = saldo;
     }
@@ -116,8 +88,23 @@ public abstract class ContaBancaria {
         this.boleto = boleto;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    // Depósito
+
+    public abstract void configurarConta(double primeiroDeposito);
+
+    public boolean autorizarAcesso(String nome, String numero, String agencia) {
+        if (this.name.equalsIgnoreCase(nome) && this.conta.equalsIgnoreCase(numero) && this.agencia.equalsIgnoreCase(agencia)) {
+            System.out.println("Acesso autorizado!");
+            return true;
+        } else {
+            System.out.println("Informações inválidas. Acesso negado.");
+            return false;
+        }
+    }
+
     public boolean depositando() {
         System.out.println("Informe o valor do depósito:");
         this.deposito = scanner.nextDouble();
@@ -129,8 +116,6 @@ public abstract class ContaBancaria {
 
         return true;
     }
-
-    // Saque
     public boolean sacando(){
         System.out.println("Informe o valor do saque:");
         this.saque = scanner.nextDouble();
@@ -152,25 +137,22 @@ public abstract class ContaBancaria {
         }
 
     }
-    // Pagamento de boleto
     public boolean pagandoBoleto(){
-
         System.out.println("Informe o valor do boleto:");
         this.boleto = scanner.nextDouble();
 
-        if(this.boleto <=0) {
+        if(this.boleto <=0){
             System.out.println("Valor de boleto inválido!");
             return false;
         }
-
         if (this.boleto<=this.saldo){
             this.saldo -= this.boleto;
             System.out.println("Boleto pago com sucesso!");
             return true;
         }
-
         System.out.println("Saldo insuficiente!");
         return false;
-    }   
+    }    
+
 
 }
