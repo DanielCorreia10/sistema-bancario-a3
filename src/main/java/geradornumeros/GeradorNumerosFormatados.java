@@ -13,10 +13,9 @@ public class GeradorNumerosFormatados {
         String numero;
         do {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 6; i++) {
                 sb.append(random.nextInt(10));
             }
-            sb.append('-').append(random.nextInt(10));
             numero = sb.toString();
         } while (contasGeradas.contains(numero));
 
@@ -28,10 +27,9 @@ public class GeradorNumerosFormatados {
         String numero;
         do {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 5; i++) {
                 sb.append(random.nextInt(10));
             }
-            sb.append('-').append(random.nextInt(10));
             numero = sb.toString();
         } while (agenciasGeradas.contains(numero));
 

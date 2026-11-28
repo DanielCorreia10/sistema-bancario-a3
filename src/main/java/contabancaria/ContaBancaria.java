@@ -19,7 +19,7 @@ public abstract class ContaBancaria {
 
     public abstract String getTipoConta();
 
-    protected void configurarConta(double primeiroDeposito) {
+    protected void configurarConta() {
     }
 
     public double calcularRendimento() {
@@ -34,27 +34,58 @@ public abstract class ContaBancaria {
         return 0;
     }
 
-    public void setValorChequeEspecialUsado(double valorChequeEspecialUsado) {
-        throw new UnsupportedOperationException(getTipoConta() + " não possui cheque especial");
+    public double getTaxaChequeEspecialDevida() {
+        return 0;
     }
 
     public double getLimiteChequeEspecialDisponivel() {
         return getChequeEspecial() - getValorChequeEspecialUsado();
     }
 
-    public void abrir(double primeiroDeposito) {
-        this.saldo = primeiroDeposito;
-        configurarConta(primeiroDeposito);
+    public void abrir() {
+        configurarConta();
+    }
+
+    public void depositar(double valor) {
+        validarValor(valor);
+        creditar(valor);
+    }
+
+    public boolean sacar(double valor) {
+        validarValor(valor);
+        if (valor > saldo) {
+            return false;
+        }
+        debitar(valor);
+        return true;
+    }
+
+    public boolean pagarBoleto(double valor) {
+        return sacar(valor);
     }
 
     public double aplicarRendimento() {
         double rendimento = calcularRendimento();
-        this.saldo += rendimento;
+        creditar(rendimento);
         return rendimento;
     }
 
     public void executarTransacao(Transacao transacao) {
         transacao.executar(this);
+    }
+
+    protected void creditar(double valor) {
+        this.saldo += valor;
+    }
+
+    protected void debitar(double valor) {
+        this.saldo -= valor;
+    }
+
+    protected static void validarValor(double valor) {
+        if (valor <= 0) {
+            throw new IllegalArgumentException("O valor deve ser maior que zero.");
+        }
     }
 
     public Cliente getTitular() {
@@ -75,9 +106,5 @@ public abstract class ContaBancaria {
 
     public double getSaldo() {
         return saldo;
-    }
-
-    public void setSaldo(double saldo) {
-        this.saldo = saldo;
     }
 }

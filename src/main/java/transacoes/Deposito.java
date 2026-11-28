@@ -4,8 +4,6 @@ import contabancaria.ContaBancaria;
 
 public class Deposito extends Transacao {
 
-    private static final double TAXA_CHEQUE_ESPECIAL = 0.20;
-
     public Deposito(double valor) {
         super(valor);
     }
@@ -17,28 +15,22 @@ public class Deposito extends Transacao {
             return;
         }
 
-        double usado = conta.getValorChequeEspecialUsado();
+        double dividaAntes = conta.getValorChequeEspecialUsado();
 
-        if (usado > 0) {
-            double taxa = usado * TAXA_CHEQUE_ESPECIAL;
-            double valorParaCobrir = usado + taxa;
+        if (dividaAntes > 0) {
+            System.out.println("Você utilizou R$" + formatar(dividaAntes) + " do seu cheque especial.");
+            System.out.println("Será cobrada uma taxa de 20%: R$" + formatar(conta.getTaxaChequeEspecialDevida()));
+        }
 
-            System.out.println("Você utilizou R$" + formatar(usado) + " do seu cheque especial.");
-            System.out.println("Será cobrada uma taxa de 20%: R$" + formatar(taxa));
+        conta.depositar(valor);
 
-            if (valor >= valorParaCobrir) {
-                conta.setSaldo(conta.getSaldo() + valor - valorParaCobrir);
-                conta.setValorChequeEspecialUsado(0);
-                System.out.println("Cheque especial e taxa pagos com sucesso!");
-            } else {
-                double valorRestante = valorParaCobrir - valor;
-                conta.setValorChequeEspecialUsado(valorRestante);
-                System.out.println("Depósito utilizado para abater a dívida do cheque especial.");
-                System.out.println("Valor restante da dívida: R$" + formatar(valorRestante));
-            }
-        } else {
-            conta.setSaldo(conta.getSaldo() + valor);
+        if (dividaAntes <= 0) {
             System.out.println("Depósito realizado com sucesso!");
+        } else if (conta.getValorChequeEspecialUsado() > 0) {
+            System.out.println("Depósito utilizado para abater a dívida do cheque especial.");
+            System.out.println("Valor restante da dívida: R$" + formatar(conta.getValorChequeEspecialUsado()));
+        } else {
+            System.out.println("Cheque especial e taxa pagos com sucesso!");
         }
 
         exibirSaldo(conta);

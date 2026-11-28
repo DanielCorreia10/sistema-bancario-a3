@@ -15,21 +15,19 @@ public class Saque extends Transacao {
             return;
         }
 
-        if (valor > conta.getSaldo()) {
-            double restanteParaSacar = valor - conta.getSaldo();
+        double dividaAntes = conta.getValorChequeEspecialUsado();
 
-            if (restanteParaSacar <= conta.getLimiteChequeEspecialDisponivel()) {
-                conta.setSaldo(0);
-                conta.setValorChequeEspecialUsado(conta.getValorChequeEspecialUsado() + restanteParaSacar);
+        if (!conta.sacar(valor)) {
+            System.out.println("Saldo + limite insuficiente, não podemos concluir a transação!");
+            exibirSaldo(conta);
+            return;
+        }
 
-                System.out.println("Saque realizado com sucesso.");
-                System.out.println("Valor utilizado do cheque especial: R$"
-                        + formatar(conta.getValorChequeEspecialUsado()));
-            } else {
-                System.out.println("Saldo + limite insuficiente, não podemos concluir a transação!");
-            }
+        if (conta.getValorChequeEspecialUsado() > dividaAntes) {
+            System.out.println("Saque realizado com sucesso.");
+            System.out.println("Valor utilizado do cheque especial: R$"
+                    + formatar(conta.getValorChequeEspecialUsado()));
         } else {
-            conta.setSaldo(conta.getSaldo() - valor);
             System.out.println("Saque realizado com sucesso!");
         }
 

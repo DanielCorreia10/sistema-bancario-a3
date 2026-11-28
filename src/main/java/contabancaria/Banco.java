@@ -1,43 +1,73 @@
 package contabancaria;
 
 import cliente.Cliente;
-import cliente.Cpf;
+import geradornumeros.GeradorNumerosFormatados;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 public class Banco {
 
     private final List<Cliente> clientes = new ArrayList<>();
     private final List<ContaBancaria> contas = new ArrayList<>();
 
-    public void adicionarCliente(Cliente cliente) {
-        clientes.add(cliente);
+    public ContaBancaria abrirContaCorrente(Cliente titular) {
+        if (!podeAbrir(titular, ContaCorrente.class)) {
+            return null;
+        }
+        return registrar(titular, new ContaCorrente(titular,
+                GeradorNumerosFormatados.gerarNumeroConta(),
+                GeradorNumerosFormatados.gerarNumeroAgencia()));
     }
 
-    public Cliente buscarCliente(Cpf cpf) {
+    public ContaBancaria abrirContaPoupanca(Cliente titular) {
+        if (!podeAbrir(titular, ContaPoupanca.class)) {
+            return null;
+        }
+        return registrar(titular, new ContaPoupanca(titular,
+                GeradorNumerosFormatados.gerarNumeroConta(),
+                GeradorNumerosFormatados.gerarNumeroAgencia()));
+    }
+
+    private boolean podeAbrir(Cliente titular, Class<? extends ContaBancaria> tipo) {
+        Cliente cadastrado = buscarCliente(titular.getCpf());
+        if (cadastrado != null && cadastrado != titular) {
+            throw new IllegalArgumentException("Já existe outro cliente com este CPF.");
+        }
+        return !clientePossuiConta(titular, tipo);
+    }
+
+    private ContaBancaria registrar(Cliente titular, ContaBancaria conta) {
+        conta.abrir();
+
+        if (buscarCliente(titular.getCpf()) == null) {
+            clientes.add(titular);
+        }
+        contas.add(conta);
+        return conta;
+    }
+
+    public Cliente buscarCliente(String cpf) {
         for (Cliente cliente : clientes) {
-            if (cliente.getCpf().equals(cpf)) {
+            if (cliente.temCpf(cpf)) {
                 return cliente;
             }
         }
         return null;
     }
 
-    public void adicionarConta(ContaBancaria conta) {
-        contas.add(conta);
-    }
-
     public ContaBancaria buscarConta(String numeroConta) {
+        String digitos = numeroConta == null ? "" : numeroConta.replaceAll("\\D", "");
+
         for (ContaBancaria conta : contas) {
-            if (conta.getConta().equalsIgnoreCase(numeroConta)) {
+            if (conta.getConta().equals(digitos)) {
                 return conta;
             }
         }
         return null;
     }
 
-    public List<ContaBancaria> autenticar(Cpf cpf, String senha) {
+    public List<ContaBancaria> autenticar(String cpf, String senha) {
         List<ContaBancaria> autenticadas = new ArrayList<>();
 
         Cliente cliente = buscarCliente(cpf);
@@ -53,27 +83,24 @@ public class Banco {
         return autenticadas;
     }
 
+    public boolean clientePossuiConta(Cliente cliente, Class<? extends ContaBancaria> tipo) {
+        for (ContaBancaria conta : contas) {
+            if (conta.getTitular() == cliente && tipo.isInstance(conta)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean contasAtivas() {
         return !contas.isEmpty();
     }
 
-    public void listarContas() {
-        if (contas.isEmpty()) {
-            System.out.println("Nenhuma conta cadastrada.");
-            return;
-        }
-
-        System.out.println("Contas cadastradas:");
-        for (ContaBancaria conta : contas) {
-            System.out.println("Nome: " + conta.getNome()
-                    + ", Tipo: " + conta.getTipoConta()
-                    + ", Conta: " + conta.getConta()
-                    + ", Agência: " + conta.getAgencia()
-                    + ", Saldo: " + String.format(new Locale("pt", "BR"), "%.2f", conta.getSaldo()));
-        }
+    public List<ContaBancaria> getContas() {
+        return Collections.unmodifiableList(contas);
     }
 
-    public boolean alterarNomeConta(String numeroConta, String novoNome) {
+    public boolean alterarNomeTitular(String numeroConta, String novoNome) {
         ContaBancaria conta = buscarConta(numeroConta);
         if (conta == null) {
             return false;
