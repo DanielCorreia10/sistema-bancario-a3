@@ -1,44 +1,68 @@
 package contabancaria;
 
+import cliente.Cliente;
 import transacoes.Transacao;
 
 public abstract class ContaBancaria {
 
-    private final String nome;
+    private final Cliente titular;
     private final String conta;
     private final String agencia;
 
     private double saldo;
-    private double chequeEspecial;
-    private double valorChequeEspecialUsado;
 
-    protected ContaBancaria(String nome, String conta, String agencia) {
-        this.nome = nome;
+    protected ContaBancaria(Cliente titular, String conta, String agencia) {
+        this.titular = titular;
         this.conta = conta;
         this.agencia = agencia;
     }
 
-    public abstract double calcularChequeEspecial(double primeiroDeposito);
-
     public abstract String getTipoConta();
+
+    protected void configurarConta(double primeiroDeposito) {
+    }
+
+    public double calcularRendimento() {
+        return 0;
+    }
+
+    public double getChequeEspecial() {
+        return 0;
+    }
+
+    public double getValorChequeEspecialUsado() {
+        return 0;
+    }
+
+    public void setValorChequeEspecialUsado(double valorChequeEspecialUsado) {
+        throw new UnsupportedOperationException(getTipoConta() + " não possui cheque especial");
+    }
+
+    public double getLimiteChequeEspecialDisponivel() {
+        return getChequeEspecial() - getValorChequeEspecialUsado();
+    }
 
     public void abrir(double primeiroDeposito) {
         this.saldo = primeiroDeposito;
-        this.chequeEspecial = calcularChequeEspecial(primeiroDeposito);
+        configurarConta(primeiroDeposito);
     }
 
-    public boolean autenticar(String nomeInformado, String contaInformada, String agenciaInformada) {
-        return nomeInformado.equalsIgnoreCase(this.nome)
-                && contaInformada.equals(this.conta)
-                && agenciaInformada.equals(this.agencia);
+    public double aplicarRendimento() {
+        double rendimento = calcularRendimento();
+        this.saldo += rendimento;
+        return rendimento;
     }
 
     public void executarTransacao(Transacao transacao) {
         transacao.executar(this);
     }
 
+    public Cliente getTitular() {
+        return titular;
+    }
+
     public String getNome() {
-        return nome;
+        return titular.getNome();
     }
 
     public String getConta() {
@@ -55,21 +79,5 @@ public abstract class ContaBancaria {
 
     public void setSaldo(double saldo) {
         this.saldo = saldo;
-    }
-
-    public double getChequeEspecial() {
-        return chequeEspecial;
-    }
-
-    public double getValorChequeEspecialUsado() {
-        return valorChequeEspecialUsado;
-    }
-
-    public void setValorChequeEspecialUsado(double valorChequeEspecialUsado) {
-        this.valorChequeEspecialUsado = valorChequeEspecialUsado;
-    }
-
-    public double getLimiteChequeEspecialDisponivel() {
-        return chequeEspecial - valorChequeEspecialUsado;
     }
 }
