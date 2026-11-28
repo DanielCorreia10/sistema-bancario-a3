@@ -28,7 +28,7 @@ public class Main {
             System.out.println("1 - Criar conta");
             System.out.println("2 - Acessar conta");
             System.out.println("3 - Listar contas");
-            System.out.println("4 - Alterar nome da conta");
+            System.out.println("4 - Alterar dados (nome ou celular)");
             System.out.println("5 - Remover conta");
             System.out.println("0 - Sair");
 
@@ -48,7 +48,7 @@ public class Main {
                     break;
 
                 case 4:
-                    alterarNomeConta();
+                    alterarDados();
                     break;
 
                 case 5:
@@ -94,7 +94,14 @@ public class Main {
         if (titular == null) {
             System.out.println("Insira seu nome:");
             String nome = scanner.nextLine().trim();
-            titular = new Cliente(nome, cpf, lerSenhaNova());
+
+            String celular = lerCelular();
+            if (celular == null) {
+                System.out.println("Criação de conta cancelada.");
+                return;
+            }
+
+            titular = new Cliente(nome, cpf, lerSenhaNova(), celular);
         } else {
             System.out.println("Você já é nosso cliente.");
             if (!titular.autenticar(lerSenha("Digite a senha para abrir uma nova conta:"))) {
@@ -118,8 +125,9 @@ public class Main {
         }
 
         System.out.println("Sua conta foi criada com sucesso, veja seus dados abaixo:");
-        System.out.println("Nome: " + titular.getNome() + " (" + novaConta.getTipoConta() + ")");
+        System.out.println("Nome: " + novaConta.getNome() + " (" + novaConta.getTipoConta() + ")");
         System.out.println("CPF: " + formatarCpf(titular.getCpf()));
+        System.out.println("Celular: " + formatarCelular(titular.getCelular()));
         System.out.println("Conta: " + formatarConta(novaConta.getConta()));
         System.out.println("Agência: " + formatarAgencia(novaConta.getAgencia()));
         System.out.println("=========================");
@@ -158,13 +166,26 @@ public class Main {
         }
 
         System.out.println("Contas cadastradas:");
-        for (ContaBancaria conta : contas) {
-            System.out.println("Nome: " + conta.getNome()
-                    + ", Tipo: " + conta.getTipoConta()
-                    + ", Conta: " + formatarConta(conta.getConta())
-                    + ", Agência: " + formatarAgencia(conta.getAgencia())
-                    + ", Saldo: " + formatar(conta.getSaldo()));
+        for (int i = 0; i < contas.size(); i++) {
+            ContaBancaria conta = contas.get(i);
+            Cliente titular = conta.getTitular();
+
+            System.out.println("------------------------------");
+            System.out.println("Conta " + (i + 1) + " - " + conta.getTipoConta());
+            System.out.println("Nome da conta: " + conta.getNome());
+            System.out.println("Titular (cadastro): " + titular.getNome());
+            System.out.println("CPF: " + formatarCpf(titular.getCpf()));
+            System.out.println("Celular: " + formatarCelular(titular.getCelular()));
+            System.out.println("Conta: " + formatarConta(conta.getConta()));
+            System.out.println("Agência: " + formatarAgencia(conta.getAgencia()));
+            System.out.println("Saldo: R$ " + formatar(conta.getSaldo()));
+
+            if (conta.getChequeEspecial() > 0) {
+                System.out.println("Cheque especial: limite R$ " + formatar(conta.getChequeEspecial())
+                        + ", utilizado R$ " + formatar(conta.getValorChequeEspecialUsado()));
+            }
         }
+        System.out.println("------------------------------");
     }
 
     private static ContaBancaria acessarConta() {
@@ -255,6 +276,31 @@ public class Main {
         return scanner.nextLine();
     }
 
+    private static void alterarDados() {
+        System.out.println("O que deseja alterar?");
+        System.out.println("1 - Nome da conta");
+        System.out.println("2 - Celular");
+        System.out.println("0 - Voltar");
+        int escolha = lerInt();
+
+        switch (escolha) {
+            case 1:
+                alterarNomeConta();
+                break;
+
+            case 2:
+                alterarCelular();
+                break;
+
+            case 0:
+                break;
+
+            default:
+                System.out.println("Opção inválida");
+                break;
+        }
+    }
+
     private static void alterarNomeConta() {
         System.out.println("Informe o número da conta que deseja alterar:");
         String numeroConta = scanner.nextLine().trim();
@@ -262,10 +308,46 @@ public class Main {
         System.out.println("Informe o novo nome da conta:");
         String novoNome = scanner.nextLine().trim();
 
-        if (banco.alterarNomeTitular(numeroConta, novoNome)) {
+        if (banco.alterarNomeConta(numeroConta, novoNome)) {
             System.out.println("Nome da conta alterado com sucesso!");
         } else {
             System.out.println("Conta não encontrada.");
+        }
+    }
+
+    private static void alterarCelular() {
+        System.out.println("Informe o número da conta do titular:");
+        String numeroConta = scanner.nextLine().trim();
+
+        if (banco.buscarConta(numeroConta) == null) {
+            System.out.println("Conta não encontrada.");
+            return;
+        }
+
+        String novoCelular = lerCelular();
+        if (novoCelular == null) {
+            System.out.println("Alteração cancelada.");
+            return;
+        }
+
+        banco.alterarCelular(numeroConta, novoCelular);
+        System.out.println("Celular alterado com sucesso! Novo celular: "
+                + formatarCelular(Cliente.normalizarCelular(novoCelular)));
+    }
+
+    private static String lerCelular() {
+        while (true) {
+            System.out.println("Informe o celular com DDD (ex.: 11912345678, deixe em branco para cancelar):");
+            String linha = scanner.nextLine().trim();
+
+            if (linha.isEmpty()) {
+                return null;
+            }
+
+            if (Cliente.celularValido(linha)) {
+                return linha;
+            }
+            System.out.println("Celular inválido. Digite o DDD e o número, 11 dígitos no total.");
         }
     }
 
@@ -381,6 +463,13 @@ public class Main {
         }
         return cpf.substring(0, 3) + "." + cpf.substring(3, 6) + "."
                 + cpf.substring(6, 9) + "-" + cpf.substring(9);
+    }
+
+    private static String formatarCelular(String celular) {
+        if (celular.length() != 11) {
+            return celular;
+        }
+        return "(" + celular.substring(0, 2) + ") " + celular.substring(2, 7) + "-" + celular.substring(7);
     }
 
     private static String formatarConta(String conta) {

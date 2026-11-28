@@ -100,12 +100,21 @@ public class Banco {
         return Collections.unmodifiableList(contas);
     }
 
-    public boolean alterarNomeTitular(String numeroConta, String novoNome) {
+    public boolean alterarNomeConta(String numeroConta, String novoNome) {
         ContaBancaria conta = buscarConta(numeroConta);
         if (conta == null) {
             return false;
         }
-        conta.getTitular().setNome(novoNome);
+        conta.setNome(novoNome);
+        return true;
+    }
+
+    public boolean alterarCelular(String numeroConta, String novoCelular) {
+        ContaBancaria conta = buscarConta(numeroConta);
+        if (conta == null) {
+            return false;
+        }
+        conta.getTitular().setCelular(novoCelular);
         return true;
     }
 

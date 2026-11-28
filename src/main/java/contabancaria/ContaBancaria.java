@@ -6,6 +6,7 @@ import transacoes.Transacao;
 public abstract class ContaBancaria {
 
     private final Cliente titular;
+    private String nome;
     private final String conta;
     private final String agencia;
 
@@ -13,6 +14,7 @@ public abstract class ContaBancaria {
 
     protected ContaBancaria(Cliente titular, String conta, String agencia) {
         this.titular = titular;
+        this.nome = titular.getNome();
         this.conta = conta;
         this.agencia = agencia;
     }
@@ -93,7 +95,11 @@ public abstract class ContaBancaria {
     }
 
     public String getNome() {
-        return titular.getNome();
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public String getConta() {

@@ -14,12 +14,13 @@ public class Cliente {
     private static final int TAMANHO_HASH_BITS = 256;
     private static final SecureRandom RANDOM = new SecureRandom();
 
-    private String nome;
+    private final String nome;
     private final String cpf;
+    private String celular;
     private final byte[] salt;
     private final byte[] senhaHash;
 
-    public Cliente(String nome, String cpf, String senha) {
+    public Cliente(String nome, String cpf, String senha, String celular) {
         if (!cpfValido(cpf)) {
             throw new IllegalArgumentException("CPF inválido.");
         }
@@ -27,9 +28,13 @@ public class Cliente {
             throw new IllegalArgumentException(
                     "A senha deve ter no mínimo " + TAMANHO_MINIMO_SENHA + " caracteres.");
         }
+        if (!celularValido(celular)) {
+            throw new IllegalArgumentException("Celular inválido.");
+        }
 
         this.nome = nome;
         this.cpf = cpf;
+        this.celular = normalizarCelular(celular);
         this.salt = new byte[16];
         RANDOM.nextBytes(salt);
         this.senhaHash = calcularHash(senha, salt);
@@ -37,6 +42,14 @@ public class Cliente {
 
     public static boolean cpfValido(String cpf) {
         return cpf != null && cpf.matches("\\d{11}");
+    }
+
+    public static String normalizarCelular(String entrada) {
+        return entrada == null ? "" : entrada.replaceAll("\\D", "");
+    }
+
+    public static boolean celularValido(String entrada) {
+        return normalizarCelular(entrada).matches("\\d{11}");
     }
 
     public static boolean senhaValida(String senha) {
@@ -58,12 +71,19 @@ public class Cliente {
         return nome;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
     public String getCpf() {
         return cpf;
+    }
+
+    public String getCelular() {
+        return celular;
+    }
+
+    public void setCelular(String celular) {
+        if (!celularValido(celular)) {
+            throw new IllegalArgumentException("Celular inválido.");
+        }
+        this.celular = normalizarCelular(celular);
     }
 
     private static byte[] calcularHash(String senha, byte[] salt) {
