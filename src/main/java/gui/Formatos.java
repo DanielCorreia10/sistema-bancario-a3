@@ -15,7 +15,11 @@ final class Formatos {
         return "R$ " + String.format(LOCALE_BR, "%,.2f", valor);
     }
 
-    /** Aceita "10", "10.5", "10,5" e "1.000,50". Lança NumberFormatException se inválido. */
+    static String percentual(double valor) {
+        return String.format(LOCALE_BR, "%.2f%%", valor);
+    }
+
+    /** Aceita "10","10.5", "10,5" e "1.000,50". Lança NumberFormatException se inválido. */
     static double lerValor(String texto) {
         String t = texto.trim();
         if (t.indexOf(',') >= 0) {
@@ -71,6 +75,10 @@ final class Formatos {
         if (conta.getChequeEspecial() > 0) {
             sb.append("\nCheque especial: limite ").append(moeda(conta.getChequeEspecial()))
                     .append(", utilizado ").append(moeda(conta.getValorChequeEspecialUsado()));
+        }
+        if (conta.getTaxaRendimento() > 0) {
+            sb.append("\nTaxa de rendimento: ").append(percentual(conta.getTaxaRendimento()))
+                    .append(" por aplicação");
         }
         return sb.toString();
     }

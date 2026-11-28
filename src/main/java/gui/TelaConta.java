@@ -88,6 +88,9 @@ final class TelaConta extends JDialog {
         if (conta.getChequeEspecial() > 0) {
             rotuloCheque.setText("Cheque especial: limite " + Formatos.moeda(conta.getChequeEspecial())
                     + " | utilizado " + Formatos.moeda(conta.getValorChequeEspecialUsado()));
+        } else if (conta.getTaxaRendimento() > 0) {
+            rotuloCheque.setText("Rendimento: " + Formatos.percentual(conta.getTaxaRendimento())
+                    + " por aplicação");
         } else {
             rotuloCheque.setText("Esta conta não possui cheque especial.");
         }

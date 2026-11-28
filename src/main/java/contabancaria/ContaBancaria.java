@@ -30,6 +30,11 @@ public abstract class ContaBancaria {
         return 0;
     }
 
+    /** Taxa de rendimento em percentual; 0 para contas que não rendem. */
+    public double getTaxaRendimento() {
+        return 0;
+    }
+
     public double getChequeEspecial() {
         return 0;
     }
