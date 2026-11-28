@@ -9,30 +9,29 @@ public class PagamentoBoleto extends Transacao {
     }
 
     @Override
-    public void executar(ContaBancaria conta) {
+    public String executar(ContaBancaria conta) {
         if (valor <= 0) {
-            System.out.println("O valor do boleto deve ser maior que zero.");
-            return;
+            return "O valor do boleto deve ser maior que zero.";
         }
 
+        StringBuilder msg = new StringBuilder();
         boolean precisaDoLimite = valor > conta.getSaldo();
         if (precisaDoLimite) {
-            System.out.println("Saldo insuficiente, vamos tentar aplicar o limite do seu cheque especial");
+            msg.append("Saldo insuficiente, vamos tentar aplicar o limite do seu cheque especial\n");
         }
 
         if (!conta.pagarBoleto(valor)) {
-            System.out.println("Saldo + limite insuficiente, não podemos concluir a transação!");
-            exibirSaldo(conta);
-            return;
+            return msg.append("Saldo + limite insuficiente, não podemos concluir a transação!\n")
+                    .append(linhaSaldo(conta)).toString();
         }
 
         if (precisaDoLimite) {
-            System.out.println("Transação concluída com sucesso.");
-            System.out.println("Sua conta agora está utilizando o cheque especial.");
+            msg.append("Transação concluída com sucesso.\n");
+            msg.append("Sua conta agora está utilizando o cheque especial.\n");
         } else {
-            System.out.println("Boleto pago com sucesso!");
+            msg.append("Boleto pago com sucesso!\n");
         }
 
-        exibirSaldo(conta);
+        return msg.append(linhaSaldo(conta)).toString();
     }
 }

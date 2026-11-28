@@ -9,28 +9,26 @@ public class Saque extends Transacao {
     }
 
     @Override
-    public void executar(ContaBancaria conta) {
+    public String executar(ContaBancaria conta) {
         if (valor <= 0) {
-            System.out.println("O saque deve ser maior que zero.");
-            return;
+            return "O saque deve ser maior que zero.";
         }
 
         double dividaAntes = conta.getValorChequeEspecialUsado();
 
         if (!conta.sacar(valor)) {
-            System.out.println("Saldo + limite insuficiente, não podemos concluir a transação!");
-            exibirSaldo(conta);
-            return;
+            return "Saldo + limite insuficiente, não podemos concluir a transação!\n" + linhaSaldo(conta);
         }
 
+        StringBuilder msg = new StringBuilder();
         if (conta.getValorChequeEspecialUsado() > dividaAntes) {
-            System.out.println("Saque realizado com sucesso.");
-            System.out.println("Valor utilizado do cheque especial: R$"
-                    + formatar(conta.getValorChequeEspecialUsado()));
+            msg.append("Saque realizado com sucesso.\n");
+            msg.append("Valor utilizado do cheque especial: R$")
+                    .append(formatar(conta.getValorChequeEspecialUsado())).append("\n");
         } else {
-            System.out.println("Saque realizado com sucesso!");
+            msg.append("Saque realizado com sucesso!\n");
         }
 
-        exibirSaldo(conta);
+        return msg.append(linhaSaldo(conta)).toString();
     }
 }

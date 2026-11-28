@@ -16,7 +16,7 @@ public class Cliente {
 
     private final String nome;
     private final String cpf;
-    private String celular;
+    private final String celular;
     private final byte[] salt;
     private final byte[] senhaHash;
 
@@ -77,13 +77,6 @@ public class Cliente {
 
     public String getCelular() {
         return celular;
-    }
-
-    public void setCelular(String celular) {
-        if (!celularValido(celular)) {
-            throw new IllegalArgumentException("Celular inválido.");
-        }
-        this.celular = normalizarCelular(celular);
     }
 
     private static byte[] calcularHash(String senha, byte[] salt) {

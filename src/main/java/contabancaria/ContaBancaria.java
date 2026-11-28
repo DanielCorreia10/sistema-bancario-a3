@@ -7,6 +7,7 @@ public abstract class ContaBancaria {
 
     private final Cliente titular;
     private String nome;
+    private String celular;
     private final String conta;
     private final String agencia;
 
@@ -15,6 +16,7 @@ public abstract class ContaBancaria {
     protected ContaBancaria(Cliente titular, String conta, String agencia) {
         this.titular = titular;
         this.nome = titular.getNome();
+        this.celular = titular.getCelular();
         this.conta = conta;
         this.agencia = agencia;
     }
@@ -72,8 +74,8 @@ public abstract class ContaBancaria {
         return rendimento;
     }
 
-    public void executarTransacao(Transacao transacao) {
-        transacao.executar(this);
+    public String executarTransacao(Transacao transacao) {
+        return transacao.executar(this);
     }
 
     protected void creditar(double valor) {
@@ -100,6 +102,17 @@ public abstract class ContaBancaria {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getCelular() {
+        return celular;
+    }
+
+    public void setCelular(String celular) {
+        if (!Cliente.celularValido(celular)) {
+            throw new IllegalArgumentException("Celular inválido.");
+        }
+        this.celular = Cliente.normalizarCelular(celular);
     }
 
     public String getConta() {

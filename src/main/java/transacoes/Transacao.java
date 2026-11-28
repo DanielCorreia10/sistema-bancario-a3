@@ -13,13 +13,14 @@ public abstract class Transacao {
         this.valor = valor;
     }
 
-    public abstract void executar(ContaBancaria conta);
+    /** Executa a transação na conta e devolve a mensagem de resultado para ser exibida ao usuário. */
+    public abstract String executar(ContaBancaria conta);
 
     protected static String formatar(double valor) {
         return String.format(LOCALE_BR, "%.2f", valor);
     }
 
-    protected static void exibirSaldo(ContaBancaria conta) {
-        System.out.println("Saldo atual: R$" + formatar(conta.getSaldo()));
+    protected static String linhaSaldo(ContaBancaria conta) {
+        return "Saldo atual: R$" + formatar(conta.getSaldo());
     }
 }

@@ -114,7 +114,7 @@ public class Banco {
         if (conta == null) {
             return false;
         }
-        conta.getTitular().setCelular(novoCelular);
+        conta.setCelular(novoCelular);
         return true;
     }
 

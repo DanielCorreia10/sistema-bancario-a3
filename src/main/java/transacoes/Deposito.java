@@ -9,30 +9,32 @@ public class Deposito extends Transacao {
     }
 
     @Override
-    public void executar(ContaBancaria conta) {
+    public String executar(ContaBancaria conta) {
         if (valor <= 0) {
-            System.out.println("O depósito deve ser maior que zero.");
-            return;
+            return "O depósito deve ser maior que zero.";
         }
 
+        StringBuilder msg = new StringBuilder();
         double dividaAntes = conta.getValorChequeEspecialUsado();
 
         if (dividaAntes > 0) {
-            System.out.println("Você utilizou R$" + formatar(dividaAntes) + " do seu cheque especial.");
-            System.out.println("Será cobrada uma taxa de 20%: R$" + formatar(conta.getTaxaChequeEspecialDevida()));
+            msg.append("Você utilizou R$").append(formatar(dividaAntes)).append(" do seu cheque especial.\n");
+            msg.append("Será cobrada uma taxa de 20%: R$")
+                    .append(formatar(conta.getTaxaChequeEspecialDevida())).append("\n");
         }
 
         conta.depositar(valor);
 
         if (dividaAntes <= 0) {
-            System.out.println("Depósito realizado com sucesso!");
+            msg.append("Depósito realizado com sucesso!\n");
         } else if (conta.getValorChequeEspecialUsado() > 0) {
-            System.out.println("Depósito utilizado para abater a dívida do cheque especial.");
-            System.out.println("Valor restante da dívida: R$" + formatar(conta.getValorChequeEspecialUsado()));
+            msg.append("Depósito utilizado para abater a dívida do cheque especial.\n");
+            msg.append("Valor restante da dívida: R$")
+                    .append(formatar(conta.getValorChequeEspecialUsado())).append("\n");
         } else {
-            System.out.println("Cheque especial e taxa pagos com sucesso!");
+            msg.append("Cheque especial e taxa pagos com sucesso!\n");
         }
 
-        exibirSaldo(conta);
+        return msg.append(linhaSaldo(conta)).toString();
     }
 }
