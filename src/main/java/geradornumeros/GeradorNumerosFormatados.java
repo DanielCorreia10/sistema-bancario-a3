@@ -9,10 +9,6 @@ public class GeradorNumerosFormatados {
     private static final Set<String> contasGeradas = new HashSet<>();
     private static final Set<String> agenciasGeradas = new HashSet<>();
 
-    /**
-     * Gera um número de CONTA no formato: xxxxx-x (5 dígitos + hífen + 1 dígito)
-     * Exemplo: 34871-8
-     */
     public static String gerarNumeroConta() {
         String numero;
         do {
